@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -46,6 +47,7 @@ class CrimeListFragment : Fragment() {
         View.OnClickListener {
         private val titleTextView: TextView = view.findViewById(R.id.crime_title)
         private val dateTextView: TextView = view.findViewById(R.id.crime_date)
+        private val crimeSolvedIV: ImageView = view.findViewById(R.id.crime_solved)
         private lateinit var crime: Crime
 
         init {
@@ -56,6 +58,11 @@ class CrimeListFragment : Fragment() {
             this.crime = crime
             titleTextView.text = crime.title
             dateTextView.text = crime.date.toString()
+            crimeSolvedIV.visibility = if (crime.isSolved) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
         }
 
         override fun onClick(v: View?) {
