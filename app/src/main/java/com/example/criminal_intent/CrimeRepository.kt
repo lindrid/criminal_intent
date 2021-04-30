@@ -5,7 +5,7 @@ import androidx.room.Room
 import com.example.criminal_intent.database.CrimeDatabase
 import java.util.*
 
-private val DATABASE_NAME = "crime-database"
+private const val DATABASE_NAME = "crime-database"
 
 class CrimeRepository private constructor(context: Context) {
 
