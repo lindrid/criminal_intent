@@ -7,11 +7,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.ListAdapter
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.util.*
@@ -69,6 +71,14 @@ class CrimeListFragment : Fragment() {
         )
     }
 
+    private class CrimeItemDiffCallback: DiffUtil.ItemCallback<Crime>() {
+        override fun areItemsTheSame(oldItem: Crime, newItem: Crime): Boolean =
+            oldItem == newItem
+
+        override fun areContentsTheSame(oldItem: Crime, newItem: Crime): Boolean =
+            oldItem == newItem
+    }
+
     private inner class CrimeHolder(view: View): RecyclerView.ViewHolder(view),
         View.OnClickListener {
         private val titleTextView: TextView = view.findViewById(R.id.crime_title)
@@ -97,7 +107,7 @@ class CrimeListFragment : Fragment() {
     }
 
     private inner class CrimeAdapter (var crimes: List<Crime>):
-        RecyclerView.Adapter<CrimeHolder> () {
+        androidx.recyclerview.widget.ListAdapter<Crime, CrimeHolder>(CrimeItemDiffCallback()) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CrimeHolder {
             val view = layoutInflater.inflate(R.layout.list_item_crime, parent, false)
@@ -114,6 +124,10 @@ class CrimeListFragment : Fragment() {
     private fun updateUI(crimes: List<Crime>) {
         adapter = CrimeAdapter(crimes)
         crimeRecyclerView.adapter = adapter
+
+        crimeListViewModel.crimeListLiveData.observe(this, Observer { list->
+            adapter?.submitList(list)
+        })
     }
 
     companion object {
