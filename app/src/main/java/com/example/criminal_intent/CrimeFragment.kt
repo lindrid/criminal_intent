@@ -18,8 +18,10 @@ import java.util.concurrent.Executors
 
 private const val ARG_CRIME_ID = "crime_id"
 private const val TAG = "CrimeFragment"
+private const val DIALOG_DATE = "DialogDate"
+private const val REQUEST_DATE_PICKER = 0
 
-class CrimeFragment: Fragment() {
+class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
   private lateinit var crime: Crime
   private lateinit var titleField: EditText
   private lateinit var dateButton: Button
@@ -39,6 +41,11 @@ class CrimeFragment: Fragment() {
     }
   }
 
+  override fun setDate(date: Date) {
+    crime.date = date
+    updateUI()
+  }
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     crime = Crime()
@@ -54,10 +61,7 @@ class CrimeFragment: Fragment() {
     dateButton      = view.findViewById(R.id.crime_date) as Button
     solvedCheckBox  = view.findViewById(R.id.crime_solved) as CheckBox
 
-    dateButton.apply {
-      text = crime.title.toString()
-      isEnabled = false
-    }
+    dateButton.text = crime.title.toString()
 
     return view
   }
@@ -89,6 +93,13 @@ class CrimeFragment: Fragment() {
       val crimeId = getSerializable(ARG_CRIME_ID) as UUID
       Log.d(TAG, "Crime_id = $crimeId")
       //crimeViewModel.loadCrime(crimeId)
+    }
+
+    dateButton.setOnClickListener {
+      DatePickerFragment.newInstance(crime.date).apply {
+        setTargetFragment(this@CrimeFragment, REQUEST_DATE_PICKER)
+        show(this@CrimeFragment.requireFragmentManager(), DIALOG_DATE)
+      }
     }
   }
 
