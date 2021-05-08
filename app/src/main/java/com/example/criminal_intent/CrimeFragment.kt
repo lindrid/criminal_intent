@@ -11,21 +11,24 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import java.util.*
-import java.util.concurrent.Executors
 
 private const val ARG_CRIME_ID = "crime_id"
 private const val TAG = "CrimeFragment"
 private const val DIALOG_DATE = "DialogDate"
+private const val DIALOG_TIME = "DialogTime"
 private const val REQUEST_DATE_PICKER = 0
+private const val REQUEST_TIME_PICKER = 1
 
-class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
+class CrimeFragment: Fragment(), DatePickerFragment.Callbacks,
+  TimePickerFragment.Callbacks {
   private lateinit var crime: Crime
   private lateinit var titleField: EditText
   private lateinit var dateButton: Button
   private lateinit var solvedCheckBox: CheckBox
+  private lateinit var timeButton: Button
   private val crimeViewModel: CrimeViewModel by lazy {
     ViewModelProviders.of(this).get(CrimeViewModel::class.java)
   }
@@ -46,6 +49,17 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
     updateUI()
   }
 
+  override fun setTime(hour: Int, minute: Int) {
+    val calendar = Calendar.getInstance()
+    calendar.time = crime.date
+    calendar[Calendar.MILLISECOND] = 0
+    calendar[Calendar.SECOND] = 0
+    calendar[Calendar.MINUTE] = minute
+    calendar[Calendar.HOUR] = hour
+    crime.date = calendar.time
+    updateUI()
+  }
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     crime = Crime()
@@ -60,6 +74,7 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
     titleField      = view.findViewById(R.id.crime_title) as EditText
     dateButton      = view.findViewById(R.id.crime_date) as Button
     solvedCheckBox  = view.findViewById(R.id.crime_solved) as CheckBox
+    timeButton      = view.findViewById(R.id.time_button) as Button
 
     dateButton.text = crime.title.toString()
 
@@ -99,6 +114,16 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
       DatePickerFragment.newInstance(crime.date).apply {
         setTargetFragment(this@CrimeFragment, REQUEST_DATE_PICKER)
         show(this@CrimeFragment.requireFragmentManager(), DIALOG_DATE)
+      }
+    }
+
+    timeButton.setOnClickListener {
+      val calendar = Calendar.getInstance()
+      calendar.time = crime.date
+      TimePickerFragment.newInstance(calendar.get(Calendar.HOUR_OF_DAY),
+        calendar.get(Calendar.MINUTE)).apply {
+        setTargetFragment(this@CrimeFragment, REQUEST_TIME_PICKER)
+        show(this@CrimeFragment.requireFragmentManager(), DIALOG_TIME)
       }
     }
   }
