@@ -21,6 +21,7 @@ private const val TAG = "CrimeListFragment"
 
 class CrimeListFragment : Fragment() {
     private lateinit var crimeRecyclerView: RecyclerView
+    private lateinit var emptyView: TextView
     private var adapter: CrimeAdapter? = CrimeAdapter(emptyList())
 
     private val crimeListViewModel: CrimeListViewModel by lazy {
@@ -63,8 +64,11 @@ class CrimeListFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_crime_list, container, false)
 
         crimeRecyclerView = view.findViewById(R.id.crime_recycler_view) as RecyclerView
+        emptyView = view.findViewById(R.id.empty_view) as TextView
         crimeRecyclerView.layoutManager = LinearLayoutManager(context)
         crimeRecyclerView.adapter = adapter
+
+        showNoDataIfNoCrimes(adapter)
 
         return view
     }
@@ -82,15 +86,9 @@ class CrimeListFragment : Fragment() {
         )
     }
 
-    @SuppressLint("RestrictedApi")
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.fragment_crime_list, menu)
-
-        val appCompatActivity = activity as AppCompatActivity
-        val appBar = appCompatActivity.supportActionBar
-        appBar?.setTitle(R.string.app_name)
-        appBar?.invalidateOptionsMenu()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -151,5 +149,17 @@ class CrimeListFragment : Fragment() {
     private fun updateUI(crimes: List<Crime>) {
         adapter = CrimeAdapter(crimes)
         crimeRecyclerView.adapter = adapter
+        showNoDataIfNoCrimes(adapter)
+    }
+
+    private fun showNoDataIfNoCrimes(adapter: CrimeAdapter?) {
+        if (adapter?.itemCount == 0) {
+            crimeRecyclerView.setVisibility(View.GONE);
+            emptyView.setVisibility(View.VISIBLE);
+        }
+        else {
+            crimeRecyclerView.setVisibility(View.VISIBLE);
+            emptyView.setVisibility(View.GONE);
+        }
     }
 }
