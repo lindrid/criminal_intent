@@ -82,15 +82,9 @@ class CrimeListFragment : Fragment() {
         )
     }
 
-    @SuppressLint("RestrictedApi")
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.fragment_crime_list, menu)
-
-        val appCompatActivity = activity as AppCompatActivity
-        val appBar = appCompatActivity.supportActionBar
-        appBar?.setTitle(R.string.app_name)
-        appBar?.invalidateOptionsMenu()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
