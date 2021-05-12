@@ -2,6 +2,8 @@ package com.example.criminal_intent
 
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.content.pm.ResolveInfo
 import android.net.Uri
 import android.os.Bundle
 import android.provider.ContactsContract
@@ -124,10 +126,24 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
       startActivity(chooserIntent)
     }
 
+
     val pickContactIntent = Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI)
+
     suspectButton.setOnClickListener {
       startActivityForResult(pickContactIntent, REQUEST_CONTACT_PICKER)
     }
+
+    if (contactsAppDoesNotExist(pickContactIntent)) {
+      suspectButton.isEnabled = false
+    }
+  }
+
+  private fun contactsAppDoesNotExist(pickContactIntent: Intent): Boolean {
+    val packageManager: PackageManager = requireActivity().packageManager
+    val resolvedActivity: ResolveInfo? = packageManager.resolveActivity(pickContactIntent,
+      PackageManager.MATCH_DEFAULT_ONLY)
+
+    return resolvedActivity == null
   }
 
   override fun onStop() {
