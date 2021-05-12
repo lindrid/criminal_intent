@@ -1,5 +1,6 @@
 package com.example.criminal_intent
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -17,6 +18,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
+import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.Observer
@@ -28,6 +30,7 @@ private const val DIALOG_DATE = "DialogDate"
 private const val REQUEST_DATE_PICKER = 0
 private const val REQUEST_CONTACT_PICKER = 1
 private const val DATE_FORMAT = "EEE, MM, dd"
+private const val CODE = 123
 
 class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
   private lateinit var crime: Crime
@@ -40,6 +43,8 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
   private val crimeViewModel: CrimeViewModel by lazy {
     ViewModelProviders.of(this).get(CrimeViewModel::class.java)
   }
+
+  private val permissions = listOf<String>(Manifest.permission.READ_CONTACTS)
 
   companion object {
     fun newInstance(crimeId: UUID): CrimeFragment {
@@ -173,6 +178,7 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
     }
   }
 
+
   private fun getCrimeReport(): String {
     val solvedString = if (crime.isSolved) {
       getString(R.string.crime_report_solved)
@@ -189,6 +195,7 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
 
     return getString(R.string.crime_report, crime.title, dateString, solvedString, suspect)
   }
+
 
   override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
     when {
@@ -214,6 +221,8 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
             crimeViewModel.saveCrime(crime)
           }
         }
+
+        //ActivityCompat.requestPermissions(requireActivity(), permissions.toTypedArray(), CODE)
       }
     }
   }
