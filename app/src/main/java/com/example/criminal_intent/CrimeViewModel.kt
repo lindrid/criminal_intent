@@ -10,6 +10,8 @@ class CrimeViewModel: ViewModel() {
     private val crimeRepository = CrimeRepository.get()
     private val crimeIdLiveData = MutableLiveData<UUID>()
 
+    var suspectPhone: String = ""
+
     var crimeLiveData: LiveData<Crime?> = Transformations.switchMap(crimeIdLiveData) {
         crimeId -> crimeRepository.getCrime(crimeId)
     }

@@ -22,6 +22,7 @@ import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.Observer
+import androidx.loader.content.CursorLoader
 import java.util.*
 
 private const val ARG_CRIME_ID = "crime_id"
@@ -47,7 +48,7 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
   private val permissions = listOf<String>(Manifest.permission.READ_CONTACTS)
 
   companion object {
-    fun newInstance(crimeId: UUID): CrimeFragment {
+    fun newInstance (crimeId: UUID): CrimeFragment {
       val args = Bundle().apply {
         putSerializable(ARG_CRIME_ID, crimeId)
       }
@@ -57,19 +58,19 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
     }
   }
 
-  override fun setDate(date: Date) {
+  override fun setDate (date: Date) {
     crime.date = date
     updateUI()
   }
 
-  override fun onCreate(savedInstanceState: Bundle?) {
+  override fun onCreate (savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     crime = Crime()
     val crimeId = arguments?.getSerializable(ARG_CRIME_ID) as UUID
     crimeViewModel.loadCrime(crimeId)
   }
 
-  override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+  override fun onCreateView (inflater: LayoutInflater, container: ViewGroup?,
                             savedInstanceState: Bundle?): View? {
     val view = inflater.inflate(R.layout.fragment_crime, container, false)
 
@@ -79,7 +80,7 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
     suspectButton   = view.findViewById(R.id.suspect_button) as Button
     reportButton    = view.findViewById(R.id.send_report_button) as Button
 
-    dateButton.text = crime.title.toString()
+    dateButton.text = crime.title
 
     return view
   }
@@ -88,14 +89,14 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
     super.onStart()
 
     val titleWatcher = object : TextWatcher {
-      override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+      override fun beforeTextChanged (s: CharSequence?, start: Int, count: Int, after: Int) {
       }
 
-      override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+      override fun onTextChanged (s: CharSequence?, start: Int, before: Int, count: Int) {
         crime.title = s.toString()
       }
 
-      override fun afterTextChanged(s: Editable?) {
+      override fun afterTextChanged (s: Editable?) {
       }
     }
 
@@ -143,7 +144,7 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
     }
   }
 
-  private fun contactsAppDoesNotExist(pickContactIntent: Intent): Boolean {
+  private fun contactsAppDoesNotExist (pickContactIntent: Intent): Boolean {
     val packageManager: PackageManager = requireActivity().packageManager
     val resolvedActivity: ResolveInfo? = packageManager.resolveActivity(pickContactIntent,
       PackageManager.MATCH_DEFAULT_ONLY)
@@ -156,7 +157,7 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
     crimeViewModel.saveCrime(crime)
   }
 
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+  override fun onViewCreated (view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     crimeViewModel.crimeLiveData.observe(viewLifecycleOwner, Observer { crime ->
       crime?.let {
@@ -197,34 +198,52 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
   }
 
 
-  override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+  override fun onActivityResult (requestCode: Int, resultCode: Int, data: Intent?) {
     when {
       resultCode != Activity.RESULT_OK -> return
 
       requestCode == REQUEST_CONTACT_PICKER && data != null -> {
         val contactUri: Uri? = data.data
-        // какие поля должны быть у запрошенных строк данных из базы контактов
-        val queryFields = arrayOf(ContactsContract.Contacts.DISPLAY_NAME)
 
         contactUri?.let { uri ->
-          val cursor = requireActivity().contentResolver
-            .query(uri, queryFields, null, null, null)
+          ActivityCompat.requestPermissions(requireActivity(), permissions.toTypedArray(), CODE)
 
-          cursor?.use {
+          val cursor = requireActivity().contentResolver.query (uri, null,
+            null, null, null)
+
+          cursor?.use { it ->
             if (it.count == 0) {
               return
             }
 
             it.moveToFirst()
-            val suspect = it.getString(0)
+            val contactId = it.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID))
+            val suspect = it.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME))
+
             crime.suspect = suspect
             crimeViewModel.saveCrime(crime)
+
+            val phoneNumber = getPhoneNumber(contactId)
+            Log.d(TAG, "number = $phoneNumber")
           }
         }
-
-        //ActivityCompat.requestPermissions(requireActivity(), permissions.toTypedArray(), CODE)
       }
     }
+  }
+
+  private fun getPhoneNumber (id: String): String {
+    val uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI
+    val where = ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + id
+    val phones = requireActivity().contentResolver.query (uri, null, where,
+      null, null)
+
+    var number = ""
+    phones?.use {
+      it.moveToFirst()
+      number = it.getString(it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+    }
+
+    return number
   }
 
 }
