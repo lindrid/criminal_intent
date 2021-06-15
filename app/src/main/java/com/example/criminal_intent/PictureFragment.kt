@@ -12,12 +12,10 @@ import androidx.fragment.app.DialogFragment
 import java.io.File
 
 private const val ARG_PHOTO_FILE = "photo_file"
-private const val ARG_PHOTO_URI = "photo_uri"
 
 class PictureFragment: DialogFragment() {
   private lateinit var fullPictureView: ImageView
   private lateinit var closeButton: Button
-  private var callbacks: CrimeListFragment.Callbacks? = null
 
   companion object {
     fun newInstance (photoFile: File, photoUri: Uri): PictureFragment {
