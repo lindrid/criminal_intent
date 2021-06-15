@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.graphics.Bitmap
 import android.graphics.Matrix
+import android.graphics.Picture
 import android.net.Uri
 import android.os.Bundle
 import android.provider.ContactsContract
@@ -172,6 +173,12 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
         startActivityForResult(captureImage, REQUEST_PHOTO_CAPTURE)
       }
     }
+
+    photoView.setOnClickListener {
+      val pictureFragment = PictureFragment.newInstance(photoFile, photoUri)
+      val mainActivity = requireActivity() as MainActivity
+      mainActivity.popupPictureFragment(pictureFragment)
+    }
   }
 
   private fun contactsAppDoesNotExist(pickContactIntent: Intent): Boolean {
@@ -216,7 +223,7 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
 
   private fun updatePhotoView() {
     if (photoFile.exists()) {
-      val bitmap = (getScaledBitmap(photoFile.path, requireActivity()))
+      val bitmap = getScaledBitmap(photoFile.path, requireActivity())
       photoView.setImageBitmap(bitmap)
       photoView.rotation = getRotation(requireActivity(), photoUri)
     }
