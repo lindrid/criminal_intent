@@ -114,7 +114,7 @@ class CrimeListFragment : Fragment() {
         fun bind(crime: Crime) {
             this.crime = crime
             titleTextView.text = crime.title
-            dateTextView.text = crime.date.toString()
+            dateTextView.text = getCurrentLocaleDateString(resources, crime.date)
             crimeSolvedIV.visibility = if (crime.isSolved) {
                 View.VISIBLE
             } else {

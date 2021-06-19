@@ -24,8 +24,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import java.io.File
+import java.text.SimpleDateFormat
 import java.util.*
-
 
 private const val ARG_CRIME_ID = "crime_id"
 private const val TAG = "CrimeFragment"
@@ -33,7 +33,7 @@ private const val DIALOG_DATE = "DialogDate"
 private const val REQUEST_DATE_PICKER = 0
 private const val REQUEST_CONTACT_PICKER = 1
 private const val REQUEST_PHOTO_CAPTURE = 2
-private const val DATE_FORMAT = "EEE, MM, dd"
+
 
 class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
   private lateinit var crime: Crime
@@ -209,7 +209,7 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
 
   private fun updateUI() {
     titleField.setText(crime.title)
-    dateButton.text = crime.date.toString()
+    dateButton.text = getCurrentLocaleDateString(resources, crime.date)
     solvedCheckBox.apply {
       isChecked = crime.isSolved
       jumpDrawablesToCurrentState()
@@ -239,7 +239,8 @@ class CrimeFragment: Fragment(), DatePickerFragment.Callbacks {
       getString(R.string.crime_report_unsolved)
     }
 
-    val dateString = DateFormat.format(DATE_FORMAT, crime.date).toString()
+    val dateString = getCurrentLocaleDateString(resources, crime.date)
+
     var suspect = if (crime.suspect.isBlank()) {
       getString(R.string.crime_report_no_suspect)
     } else {
