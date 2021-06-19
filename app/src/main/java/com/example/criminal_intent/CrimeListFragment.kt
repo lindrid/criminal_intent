@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -22,6 +23,7 @@ private const val TAG = "CrimeListFragment"
 class CrimeListFragment : Fragment() {
     private lateinit var crimeRecyclerView: RecyclerView
     private var adapter: CrimeAdapter? = CrimeAdapter(emptyList())
+    private val crimeRepository = CrimeRepository.get()
 
     private val crimeListViewModel: CrimeListViewModel by lazy {
         ViewModelProviders.of(this).get(CrimeListViewModel::class.java)
@@ -105,6 +107,7 @@ class CrimeListFragment : Fragment() {
         private val titleTextView: TextView = view.findViewById(R.id.crime_title)
         private val dateTextView: TextView = view.findViewById(R.id.crime_date)
         private val crimeSolvedIV: ImageView = view.findViewById(R.id.crime_solved)
+        private val deleteBtn: Button = view.findViewById(R.id.deleteBtn)
         private lateinit var crime: Crime
 
         init {
@@ -119,6 +122,10 @@ class CrimeListFragment : Fragment() {
                 View.VISIBLE
             } else {
                 View.GONE
+            }
+
+            deleteBtn.setOnClickListener {
+                crimeRepository.deleteCrime(crime)
             }
         }
 

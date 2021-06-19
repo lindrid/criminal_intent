@@ -18,4 +18,5 @@
     <string name="crime_report_suspect">подозреваемый %s.</string>
     <string name="crime_report_subject">CriminalIntent отчет о преступлении</string>
     <string name="send_report">Послать отчет используя</string>
+    <string name="delete">Удалить</string>
 </resources>

@@ -40,6 +40,11 @@ class CrimeRepository private constructor(context: Context) {
     }
   }
 
+  fun deleteCrime (crime: Crime) {
+    executor.execute {
+      crimeDao.deleteCrime(crime)
+    }
+  }
 
   companion object {
     private var instance: CrimeRepository? = null
